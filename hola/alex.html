@@ -1,0 +1,76 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Holiii</title>
+
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      background: navy;
+      width: 100vw;
+      height: 100vh;
+    }
+
+    #text {
+      position: absolute;
+      left: 100px;
+      top: 100px;
+      color: cyan;
+      font: bold 36px Arial, sans-serif;
+      white-space: nowrap;
+      text-shadow: 0 0 10px cyan, 0 0 25px cyan;
+      animation: blink 0.7s infinite alternate;
+    }
+
+    @keyframes blink {
+      from {
+        opacity: 1;
+        text-shadow: 0 0 10px cyan, 0 0 25px cyan;
+      }
+      to {
+        opacity: 0.2;
+        text-shadow: 0 0 2px cyan;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="text">^^</div>
+
+  <script>
+    const text = document.getElementById("text");
+
+    text.textContent = "ALEX ESTUVO AQUI!!!!!!";
+
+    let x = 100, y = 100;
+    let dx = 4, dy = 3;
+
+    function bounce() {
+      const maxX = window.innerWidth - text.offsetWidth;
+      const maxY = window.innerHeight - text.offsetHeight;
+
+      x += dx;
+      y += dy;
+
+      if (x <= 0 || x >= maxX) dx *= -1;
+      if (y <= 0 || y >= maxY) dy *= -1;
+
+      x = Math.max(0, Math.min(x, maxX));
+      y = Math.max(0, Math.min(y, maxY));
+
+      text.style.left = x + "px";
+      text.style.top = y + "px";
+
+      requestAnimationFrame(bounce);
+    }
+
+    bounce();
+  </script>
+
+</body>
+</html>

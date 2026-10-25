@@ -1,0 +1,24 @@
+name: CI Web
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  comprobar-y-construir:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Descargar codigo
+        uses: actions/checkout@v4
+
+      - name: Comprobar hola/index.html
+        run: test -f hola/index.html
+
+      - name: Comprobar Dockerfile
+        run: test -f Dockerfile
+
+      - name: Construir imagen Docker
+        run: docker build -t mytest:latest .

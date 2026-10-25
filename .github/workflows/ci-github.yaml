@@ -1,0 +1,44 @@
+name: CI build-push to GitHub
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  comprobar-y-construir:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Descargar codigo
+        uses: actions/checkout@v4
+
+      - name: Comprobar hola/index.html
+        run: test -f hola/index.html
+
+      - name: Comprobar Dockerfile
+        run: test -f Dockerfile
+
+      - name: Construir imagen Docker
+        run: docker build -t test:latest .
+
+      - name: Iniciar sesion en GHCR
+        if: github.event_name == 'push'
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Construir y publicar imagen
+        if: github.event_name == 'push'
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: ghcr.io/${{ github.actor }}/hola:latest
