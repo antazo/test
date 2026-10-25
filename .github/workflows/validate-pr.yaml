@@ -1,0 +1,64 @@
+
+name: Validate Pull Request
+
+on:
+  pull_request:
+    branches:
+      - main
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - ready_for_review
+
+permissions:
+  contents: read
+
+jobs:
+  validate-changes:
+    name: validate-changes
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Validate modified files
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -euo pipefail
+
+          echo "Checking modified files..."
+
+          git diff --name-only --no-renames \
+            "$BASE_SHA...$HEAD_SHA" > changed-files.txt
+
+          if [ ! -s changed-files.txt ]; then
+            echo "No modified files found."
+            exit 1
+          fi
+
+          invalid=0
+
+          while IFS= read -r file; do
+            if [[ "$file" == hola/* ]]; then
+              echo "OK: $file"
+            else
+              echo "::error file=$file::Changes outside hola/ are not allowed."
+              invalid=1
+            fi
+          done < changed-files.txt
+
+          if [ "$invalid" -ne 0 ]; then
+            echo ""
+            echo "ERROR: Some files are outside the allowed folder."
+            echo "Only changes inside hola/ are permitted."
+            exit 1
+          fi
+
+          echo ""
+          echo "SUCCESS: All changes are inside hola/."
